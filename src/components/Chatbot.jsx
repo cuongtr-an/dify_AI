@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 //import axios from "axios";
+import { marked } from 'marked';
 import { FaPaperPlane } from "react-icons/fa";
 
 const Chatbot = () => {
@@ -7,6 +8,10 @@ const Chatbot = () => {
     const [input, setInput] = useState("");
     const chatEndRef = useRef(null);
     const [isLoading, setIsLoading] = useState(false); // Trạng thái loading
+    const parseMarkdown = (text) => {
+        // Chuyển đổi Markdown thành HTML
+        return marked(text);
+    };
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -16,7 +21,7 @@ const Chatbot = () => {
         if (input.trim() === "") return;
 
         setIsLoading(true); // Bắt đầu loading
-        
+
         const userMessage = { sender: "user", text: input };
 
         // Thêm tin nhắn người dùng trước khi gửi request
@@ -79,6 +84,7 @@ const Chatbot = () => {
                             if (jsonData.answer) {
                                 accumulatedText += jsonData.answer; // Ghép nối đoạn `answer`
 
+                                // const cleanedText = accumulatedText.replace(/\n\s*\n/g, '\n');
                                 // Cập nhật câu trả lời trên giao diện
                                 setMessages((prev) => {
                                     const updatedMessages = [...prev];
@@ -106,10 +112,14 @@ const Chatbot = () => {
     return (
         <div className="chat-container">
             <div className="chat-box">
-                {messages.map((msg, index) => (
+                {/* {messages.map((msg, index) => (
                     <div key={index} className={`message ${msg.sender}`}>
                         {msg.text}
                     </div>
+                ))} */}
+                {messages.map((msg, index) => (
+                    <div key={index} className={`message ${msg.sender}`}
+                        dangerouslySetInnerHTML={{ __html: parseMarkdown(msg.text) }} />
                 ))}
                 <div ref={chatEndRef} />
             </div>
