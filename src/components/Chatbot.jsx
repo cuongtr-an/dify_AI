@@ -2,24 +2,16 @@
 import React, { useState, useEffect, useRef } from "react";
 // import axios from "axios"; // Không sử dụng axios, thay vào đó dùng fetch để gửi request
 import { marked } from 'marked'; // Dùng thư viện 'marked' để chuyển Markdown thành HTML
-import { FaPaperPlane } from "react-icons/fa"; // Dùng biểu tượng máy bay giấy cho nút gửi tin nhắn
-import img from '../utils/image.png'
 import { FaPaperPlane } from "react-icons/fa";
 import Prism from "prismjs";
 
-
-   
-
-
-
 const Chatbot = () => {
-
     const [messages, setMessages] = useState([]); // Lưu trữ các tin nhắn (user và bot)
     const [input, setInput] = useState(""); // Lưu trữ nội dung người dùng nhập vào
     const chatEndRef = useRef(null); // Dùng để tự động cuộn đến tin nhắn cuối
     const [isLoading, setIsLoading] = useState(false); // Trạng thái để kiểm soát khi bot đang trả lời
     const [option, setOption] = useState({
-        'apikey': 'Bearer app-VpoH2NIiDdqni8nBtxAdN2vI',
+        'apikey': 'Bearer app-rvWHhd2tCD4LObid7TyQGK90',
     },);
     const [display, setDisplay] = useState('true')
 
@@ -47,7 +39,6 @@ const Chatbot = () => {
         if (input.trim() === "") return; // Nếu không có input, không gửi gì
 
         setIsLoading(true); // Đánh dấu bắt đầu trạng thái loading
-
 
         const userMessage = { sender: "user", text: input }; // Tạo đối tượng tin nhắn của người dùng
 
@@ -149,11 +140,9 @@ const Chatbot = () => {
         setOption(option); // Đặt lựa chọn người dùng vào input
         console.log(option)
         setDisplay("none")
-        
     };
 
     const options = [
-        
         {
             'name': 'Luật đất đai',
             'apikey': 'Bearer app-VpoH2NIiDdqni8nBtxAdN2vI',
@@ -176,18 +165,23 @@ const Chatbot = () => {
                         />
                     </div>
                 ))}
-                <div ref={chatEndRef} /> {/* Đảm bảo cuộn xuống tin nhắn cuối */}
+                <div ref={chatEndRef} />
             </div>
 
-            <div className="options" style={{display: display}}>
-                {/* Lặp qua mảng options và hiển thị từng nút */}
+            <div className="options" id="option-list" style={{ display: display }}>
                 {options.map((option, index) => (
-                    <button key={index} onClick={() => handleOptionSelect(option)}>
+                    <button
+                        key={index}
+                        onClick={() => handleOptionSelect(option)}>
                         {option.name}
                     </button>
                 ))}
-                
-                <img src={img} onClick={() =>setDisplay("none")} />
+                <button
+                    onClick={() =>
+                        setDisplay("none")
+                    }>
+                    <span className="material-icons icon-close-option">close</span>
+                </button>
             </div>
 
             <div className="input-container">
@@ -208,6 +202,7 @@ const Chatbot = () => {
                                 maxHeight: "120px",
                             }}
                             onInput={(e) => {
+                                // let option = doccument.get
                                 e.target.style.height = "40px";
                                 const newHeight = e.target.scrollHeight;
                                 const maxHeight = 120;
