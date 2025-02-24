@@ -9,7 +9,7 @@
 /coverage
 
 #utils
-/src/utils
+# /src/utils/Constants.js
 
 # production
 /build

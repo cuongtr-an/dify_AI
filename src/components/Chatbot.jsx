@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 // import axios from "axios"; // Không sử dụng axios, thay vào đó dùng fetch để gửi request
 import { marked } from 'marked'; // Dùng thư viện 'marked' để chuyển Markdown thành HTML
-import AppConstants from "./constants";
+import AppConstants from "../utils/Constants.js";
 import { FaPaperPlane } from "react-icons/fa";
 import Prism from "prismjs";
 
@@ -12,7 +12,7 @@ const Chatbot = () => {
     const chatEndRef = useRef(null); // Dùng để tự động cuộn đến tin nhắn cuối
     const [isLoading, setIsLoading] = useState(false); // Trạng thái để kiểm soát khi bot đang trả lời
     const [option, setOption] = useState({
-        'apikey': `Bearer ${AppConstants.API_URL}`,
+        'apikey': `Bearer ${AppConstants.API_MODEL_BASE}`,
     },);
     const [display, setDisplay] = useState('true')
 
@@ -49,7 +49,7 @@ const Chatbot = () => {
 
         try {
             // Gửi request đến API của chatbot
-            const response = await fetch("https://api.dify.ai/v1/chat-messages", {
+            const response = await fetch(`${AppConstants.BASE_URL}/chat-messages`, {
                 method: "POST",
                 headers: {
 
@@ -62,13 +62,6 @@ const Chatbot = () => {
                     "response_mode": "streaming", // Cấu hình chế độ phản hồi streaming
                     "conversation_id": "", // Nếu có conversation_id, có thể thêm vào đây
                     "user": "test-react-app", // ID người dùng
-                    "files": [
-                        {
-                            "type": "image",
-                            "transfer_method": "remote_url",
-                            "url": "https://cloud.dify.ai/logo/logo-site.png" // Thêm hình ảnh vào tin nhắn
-                        }
-                    ]
                 })
 
             });
@@ -143,16 +136,7 @@ const Chatbot = () => {
         setDisplay("none")
     };
 
-    const options = [
-        {
-            'name': 'Dế mèn phiêu lưu kí',
-            'apikey': 'Bearer app-kkR5JE4VMCeUHUSt4H8CNX6b',
-        }
-        , {
-            'name': 'Luật giao thông',
-            'apikey': 'Bearer app-L9BFBUekUi4iNqSMMINlYvv8',
-        }
-    ]
+    const options = AppConstants.API_MODEL_OPTIONS;
 
     return (
         <div className="chat-container">
