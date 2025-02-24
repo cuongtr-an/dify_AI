@@ -1,11 +1,19 @@
+
 import React, { useState, useEffect, useRef } from "react";
 // import axios from "axios"; // Không sử dụng axios, thay vào đó dùng fetch để gửi request
 import { marked } from 'marked'; // Dùng thư viện 'marked' để chuyển Markdown thành HTML
 import { FaPaperPlane } from "react-icons/fa"; // Dùng biểu tượng máy bay giấy cho nút gửi tin nhắn
 import img from '../utils/image.png'
+import { FaPaperPlane } from "react-icons/fa";
+import Prism from "prismjs";
+
+
+   
+
+
 
 const Chatbot = () => {
-    // Khai báo các state để quản lý các giá trị trong component
+
     const [messages, setMessages] = useState([]); // Lưu trữ các tin nhắn (user và bot)
     const [input, setInput] = useState(""); // Lưu trữ nội dung người dùng nhập vào
     const chatEndRef = useRef(null); // Dùng để tự động cuộn đến tin nhắn cuối
@@ -15,9 +23,18 @@ const Chatbot = () => {
     },);
     const [display, setDisplay] = useState('true')
 
+    // Hàm chuyển đổi Markdown thành HTML và highlight code
     const parseMarkdown = (text) => {
-        // Hàm này dùng để chuyển đổi văn bản Markdown thành HTML
-        return marked(text);
+        const html = marked(text, {
+            highlight: function (code, lang) {
+                if (Prism.languages[lang]) {
+                    return Prism.highlight(code, Prism.languages[lang], lang);
+                } else {
+                    return code;
+                }
+            }
+        });
+        return html;
     };
 
     // Dùng useEffect để tự động cuộn xuống tin nhắn cuối cùng mỗi khi messages thay đổi
@@ -31,9 +48,11 @@ const Chatbot = () => {
 
         setIsLoading(true); // Đánh dấu bắt đầu trạng thái loading
 
+
         const userMessage = { sender: "user", text: input }; // Tạo đối tượng tin nhắn của người dùng
 
         // Thêm tin nhắn người dùng vào trước khi gửi request
+
         setMessages((prev) => [...prev, userMessage]);
 
         try {
@@ -41,6 +60,7 @@ const Chatbot = () => {
             const response = await fetch("https://api.dify.ai/v1/chat-messages", {
                 method: "POST",
                 headers: {
+
                     'Authorization': option.apikey, // Thay bằng API Key của bạn
                     'Content-Type': 'application/json',
                 },
@@ -58,9 +78,11 @@ const Chatbot = () => {
                         }
                     ]
                 })
+
             });
 
             setInput(""); // Sau khi gửi xong, làm rỗng input của người dùng
+
 
             const reader = response.body.getReader(); // Đọc phản hồi streaming từ API
             const decoder = new TextDecoder(); // Dùng để giải mã chuỗi bytes thành string
@@ -75,31 +97,32 @@ const Chatbot = () => {
             });
 
             // Đọc từng chunk dữ liệu từ phản hồi streaming
+
             while (true) {
                 const { done, value } = await reader.read(); // Đọc từng chunk
                 if (done) break; // Nếu hết dữ liệu, thoát khỏi vòng lặp
 
-                // Giải mã chunk thành chuỗi văn bản
                 const chunk = decoder.decode(value);
+                const lines = chunk.split("\n").filter((line) => line.trim() !== "");
 
-                // Tách từng dòng dữ liệu (mỗi dòng chứa một phần câu trả lời)
-                const lines = chunk.split("\n").filter(line => line.trim() !== "");
 
-                // Xử lý từng dòng dữ liệu (tìm các câu trả lời và ghép lại)
-                lines.forEach(line => {
-                    if (line.startsWith("data: ")) { // Tìm dòng bắt đầu với 'data: '
-                        const jsonString = line.replace("data: ", ""); // Loại bỏ 'data: '
+                lines.forEach((line) => {
+                    if (line.startsWith("data: ")) {
+                        const jsonString = line.replace("data: ", "");
+
                         try {
                             const jsonData = JSON.parse(jsonString); // Chuyển chuỗi JSON thành đối tượng
                             if (jsonData.answer) {
-                                accumulatedText += jsonData.answer; // Ghép nối đoạn `answer`
+                                accumulatedText += jsonData.answer;
 
-                                // Cập nhật lại tin nhắn của bot theo thời gian thực
+
                                 setMessages((prev) => {
                                     const updatedMessages = [...prev];
                                     updatedMessages[botMessageIndex] = {
                                         ...updatedMessages[botMessageIndex],
+
                                         text: accumulatedText // Cập nhật text của bot
+
                                     };
                                     return updatedMessages;
                                 });
@@ -115,7 +138,9 @@ const Chatbot = () => {
             const errorMessage = { sender: "bot", text: "Xin lỗi, có lỗi xảy ra!" }; // Tin nhắn lỗi từ bot
             setMessages((prev) => [...prev, errorMessage]); // Thêm tin nhắn lỗi vào
         }
+
         setIsLoading(false); // Kết thúc trạng thái loading
+
     };
 
     // Hàm để xử lý khi người dùng chọn một tùy chọn
@@ -142,10 +167,14 @@ const Chatbot = () => {
     return (
         <div className="chat-container">
             <div className="chat-box">
-                {/* Hiển thị các tin nhắn, và parse Markdown nếu có */}
+
                 {messages.map((msg, index) => (
-                    <div key={index} className={`message ${msg.sender}`}
-                        dangerouslySetInnerHTML={{ __html: parseMarkdown(msg.text) }} />
+                    <div key={index} className={`message ${msg.sender}`}>
+                        <div
+                            className="markdown-container"
+                            dangerouslySetInnerHTML={{ __html: parseMarkdown(msg.text) }}
+                        />
+                    </div>
                 ))}
                 <div ref={chatEndRef} /> {/* Đảm bảo cuộn xuống tin nhắn cuối */}
             </div>
@@ -167,19 +196,33 @@ const Chatbot = () => {
                 ) : (
                     <>
 
+                        <textarea
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
+                            placeholder="Nhập tin nhắn..."
+                            style={{
+                                resize: "none",
+                                overflowY: "hidden",
+                                height: "40px",
+                                maxHeight: "120px",
+                            }}
+                            onInput={(e) => {
+                                e.target.style.height = "40px";
+                                const newHeight = e.target.scrollHeight;
+                                const maxHeight = 120;
+                                e.target.style.height = `${Math.min(newHeight, maxHeight)}px`;
 
-                        <>
-                            <input
-                                type="text"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)} // Cập nhật giá trị input khi người dùng nhập
-                                onKeyPress={(e) => e.key === "Enter" && sendMessage()} // Gửi tin nhắn khi người dùng nhấn Enter
-                                placeholder="Nhập tin nhắn..."
-                            />
-                            <button onClick={sendMessage}>
-                                <FaPaperPlane /> {/* Biểu tượng máy bay giấy để gửi tin nhắn */}
-                            </button>
-                        </>
+                                if (newHeight <= 40) {
+                                    e.target.style.overflowY = "hidden";
+                                } else {
+                                    e.target.style.overflowY = "auto";
+                                }
+                            }}
+                        ></textarea>
+                        <button onClick={sendMessage}>
+                            <FaPaperPlane />
+                        </button>
 
                     </>
                 )}
