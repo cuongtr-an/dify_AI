@@ -1,143 +1,186 @@
 import React, { useState, useEffect, useRef } from "react";
-//import axios from "axios";
-import { marked } from 'marked';
-import { FaPaperPlane } from "react-icons/fa";
+// import axios from "axios"; // Không sử dụng axios, thay vào đó dùng fetch để gửi request
+import { marked } from 'marked'; // Dùng thư viện 'marked' để chuyển Markdown thành HTML
+import { FaPaperPlane } from "react-icons/fa"; // Dùng biểu tượng máy bay giấy cho nút gửi tin nhắn
+import img from '../utils/image.png'
 
 const Chatbot = () => {
-    const [messages, setMessages] = useState([]);
-    const [input, setInput] = useState("");
-    const chatEndRef = useRef(null);
-    const [isLoading, setIsLoading] = useState(false); // Trạng thái loading
+    // Khai báo các state để quản lý các giá trị trong component
+    const [messages, setMessages] = useState([]); // Lưu trữ các tin nhắn (user và bot)
+    const [input, setInput] = useState(""); // Lưu trữ nội dung người dùng nhập vào
+    const chatEndRef = useRef(null); // Dùng để tự động cuộn đến tin nhắn cuối
+    const [isLoading, setIsLoading] = useState(false); // Trạng thái để kiểm soát khi bot đang trả lời
+    const [option, setOption] = useState({
+        'apikey': 'Bearer app-VpoH2NIiDdqni8nBtxAdN2vI',
+    },);
+    const [display, setDisplay] = useState('true')
+
     const parseMarkdown = (text) => {
-        // Chuyển đổi Markdown thành HTML
+        // Hàm này dùng để chuyển đổi văn bản Markdown thành HTML
         return marked(text);
     };
 
+    // Dùng useEffect để tự động cuộn xuống tin nhắn cuối cùng mỗi khi messages thay đổi
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
+    // Hàm gửi tin nhắn đến server (chatbot)
     const sendMessage = async () => {
-        if (input.trim() === "") return;
+        if (input.trim() === "") return; // Nếu không có input, không gửi gì
 
-        setIsLoading(true); // Bắt đầu loading
+        setIsLoading(true); // Đánh dấu bắt đầu trạng thái loading
 
-        const userMessage = { sender: "user", text: input };
+        const userMessage = { sender: "user", text: input }; // Tạo đối tượng tin nhắn của người dùng
 
-        // Thêm tin nhắn người dùng trước khi gửi request
+        // Thêm tin nhắn người dùng vào trước khi gửi request
         setMessages((prev) => [...prev, userMessage]);
 
         try {
+            // Gửi request đến API của chatbot
             const response = await fetch("https://api.dify.ai/v1/chat-messages", {
                 method: "POST",
                 headers: {
-                    'Authorization': "Bearer app-L9BFBUekUi4iNqSMMINlYvv8", // Thay bằng API Key của bạn
+                    'Authorization': option.apikey, // Thay bằng API Key của bạn
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     "inputs": {},
-                    "query": input,
-                    "response_mode": "streaming",
-                    "conversation_id": "",
-                    "user": "test-react-app",
+                    "query": input, // Truyền câu hỏi người dùng gửi vào
+                    "response_mode": "streaming", // Cấu hình chế độ phản hồi streaming
+                    "conversation_id": "", // Nếu có conversation_id, có thể thêm vào đây
+                    "user": "test-react-app", // ID người dùng
                     "files": [
                         {
                             "type": "image",
                             "transfer_method": "remote_url",
-                            "url": "https://cloud.dify.ai/logo/logo-site.png"
+                            "url": "https://cloud.dify.ai/logo/logo-site.png" // Thêm hình ảnh vào tin nhắn
                         }
                     ]
                 })
             });
 
-            setInput("");
+            setInput(""); // Sau khi gửi xong, làm rỗng input của người dùng
 
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let accumulatedText = ""; // Lưu trữ câu trả lời đã ghép
+            const reader = response.body.getReader(); // Đọc phản hồi streaming từ API
+            const decoder = new TextDecoder(); // Dùng để giải mã chuỗi bytes thành string
+            let accumulatedText = ""; // Biến này lưu trữ văn bản trả lời từ chatbot
 
-            // Thêm botMessage rỗng để cập nhật theo thời gian thực
+            // Thêm botMessage rỗng vào danh sách tin nhắn, sau đó cập nhật nó sau khi nhận được câu trả lời từ API
             let botMessageIndex;
             setMessages((prev) => {
                 const newBotMessage = { sender: "bot", text: "" };
-                botMessageIndex = prev.length; // Lưu vị trí của botMessage
+                botMessageIndex = prev.length; // Lưu chỉ mục của tin nhắn bot
                 return [...prev, newBotMessage];
             });
 
-            // Đọc từng chunk của response stream
+            // Đọc từng chunk dữ liệu từ phản hồi streaming
             while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
+                const { done, value } = await reader.read(); // Đọc từng chunk
+                if (done) break; // Nếu hết dữ liệu, thoát khỏi vòng lặp
 
                 // Giải mã chunk thành chuỗi văn bản
                 const chunk = decoder.decode(value);
 
-                // Tách từng dòng dữ liệu
+                // Tách từng dòng dữ liệu (mỗi dòng chứa một phần câu trả lời)
                 const lines = chunk.split("\n").filter(line => line.trim() !== "");
 
-                // Xử lý từng dòng dữ liệu
+                // Xử lý từng dòng dữ liệu (tìm các câu trả lời và ghép lại)
                 lines.forEach(line => {
-                    if (line.startsWith("data: ")) {
-                        const jsonString = line.replace("data: ", "");
+                    if (line.startsWith("data: ")) { // Tìm dòng bắt đầu với 'data: '
+                        const jsonString = line.replace("data: ", ""); // Loại bỏ 'data: '
                         try {
-                            const jsonData = JSON.parse(jsonString);
+                            const jsonData = JSON.parse(jsonString); // Chuyển chuỗi JSON thành đối tượng
                             if (jsonData.answer) {
                                 accumulatedText += jsonData.answer; // Ghép nối đoạn `answer`
 
-                                // const cleanedText = accumulatedText.replace(/\n\s*\n/g, '\n');
-                                // Cập nhật câu trả lời trên giao diện
+                                // Cập nhật lại tin nhắn của bot theo thời gian thực
                                 setMessages((prev) => {
                                     const updatedMessages = [...prev];
                                     updatedMessages[botMessageIndex] = {
                                         ...updatedMessages[botMessageIndex],
-                                        text: accumulatedText
+                                        text: accumulatedText // Cập nhật text của bot
                                     };
                                     return updatedMessages;
                                 });
                             }
                         } catch (error) {
-                            console.error("Lỗi khi parse JSON: ", error);
+                            console.error("Lỗi khi parse JSON: ", error); // Nếu có lỗi khi parse JSON
                         }
                     }
                 });
             }
         } catch (error) {
-            console.error("Error:", error);
-            const errorMessage = { sender: "bot", text: "Xin lỗi, có lỗi xảy ra!" };
-            setMessages((prev) => [...prev, errorMessage]);
+            console.error("Error:", error); // Xử lý lỗi nếu có
+            const errorMessage = { sender: "bot", text: "Xin lỗi, có lỗi xảy ra!" }; // Tin nhắn lỗi từ bot
+            setMessages((prev) => [...prev, errorMessage]); // Thêm tin nhắn lỗi vào
         }
-        setIsLoading(false); // Kết thúc loading
+        setIsLoading(false); // Kết thúc trạng thái loading
     };
+
+    // Hàm để xử lý khi người dùng chọn một tùy chọn
+    const handleOptionSelect = (option) => {
+        // setShowOptions(false); // Ẩn các tùy chọn khi người dùng chọn
+        setOption(option); // Đặt lựa chọn người dùng vào input
+        console.log(option)
+        setDisplay("none")
+        
+    };
+
+    const options = [
+        
+        {
+            'name': 'Luật đất đai',
+            'apikey': 'Bearer app-VpoH2NIiDdqni8nBtxAdN2vI',
+        }
+        , {
+            'name': 'Luật giao thông',
+            'apikey': 'Bearer app-L9BFBUekUi4iNqSMMINlYvv8',
+        }
+    ]
 
     return (
         <div className="chat-container">
             <div className="chat-box">
-                {/* {messages.map((msg, index) => (
-                    <div key={index} className={`message ${msg.sender}`}>
-                        {msg.text}
-                    </div>
-                ))} */}
+                {/* Hiển thị các tin nhắn, và parse Markdown nếu có */}
                 {messages.map((msg, index) => (
                     <div key={index} className={`message ${msg.sender}`}
                         dangerouslySetInnerHTML={{ __html: parseMarkdown(msg.text) }} />
                 ))}
-                <div ref={chatEndRef} />
+                <div ref={chatEndRef} /> {/* Đảm bảo cuộn xuống tin nhắn cuối */}
             </div>
+
+            <div className="options" style={{display: display}}>
+                {/* Lặp qua mảng options và hiển thị từng nút */}
+                {options.map((option, index) => (
+                    <button key={index} onClick={() => handleOptionSelect(option)}>
+                        {option.name}
+                    </button>
+                ))}
+                
+                <img src={img} onClick={() =>setDisplay("none")} />
+            </div>
+
             <div className="input-container">
                 {isLoading ? (
-                    <div className="loading-indicator">Loading ...</div>
+                    <div className="loading-indicator">Loading ...</div> // Hiển thị trạng thái loading khi bot đang trả lời
                 ) : (
                     <>
-                        <input
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-                            placeholder="Nhập tin nhắn..."
-                        />
-                        <button onClick={sendMessage}>
-                            <FaPaperPlane />
-                        </button>
+
+
+                        <>
+                            <input
+                                type="text"
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)} // Cập nhật giá trị input khi người dùng nhập
+                                onKeyPress={(e) => e.key === "Enter" && sendMessage()} // Gửi tin nhắn khi người dùng nhấn Enter
+                                placeholder="Nhập tin nhắn..."
+                            />
+                            <button onClick={sendMessage}>
+                                <FaPaperPlane /> {/* Biểu tượng máy bay giấy để gửi tin nhắn */}
+                            </button>
+                        </>
+
                     </>
                 )}
             </div>
