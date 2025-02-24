@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 // import axios from "axios"; // Không sử dụng axios, thay vào đó dùng fetch để gửi request
 import { marked } from 'marked'; // Dùng thư viện 'marked' để chuyển Markdown thành HTML
-import { FaPaperPlane } from "react-icons/fa"; // Dùng biểu tượng máy bay giấy cho nút gửi tin nhắn
+// import { FaPaperPlane } from "react-icons/fa"; // Dùng biểu tượng máy bay giấy cho nút gửi tin nhắn
 import img from '../utils/image.png'
 import { FaPaperPlane } from "react-icons/fa";
 import Prism from "prismjs";
@@ -155,8 +155,8 @@ const Chatbot = () => {
     const options = [
         
         {
-            'name': 'Luật đất đai',
-            'apikey': 'Bearer app-VpoH2NIiDdqni8nBtxAdN2vI',
+            'name': 'Dế mèn phiêu lưu kí',
+            'apikey': 'Bearer app-kkR5JE4VMCeUHUSt4H8CNX6b',
         }
         , {
             'name': 'Luật giao thông',
