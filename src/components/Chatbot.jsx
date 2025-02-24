@@ -2,8 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 // import axios from "axios"; // Không sử dụng axios, thay vào đó dùng fetch để gửi request
 import { marked } from 'marked'; // Dùng thư viện 'marked' để chuyển Markdown thành HTML
-
-
+import AppConstants from "./constants";
 import { FaPaperPlane } from "react-icons/fa";
 import Prism from "prismjs";
 
@@ -13,7 +12,7 @@ const Chatbot = () => {
     const chatEndRef = useRef(null); // Dùng để tự động cuộn đến tin nhắn cuối
     const [isLoading, setIsLoading] = useState(false); // Trạng thái để kiểm soát khi bot đang trả lời
     const [option, setOption] = useState({
-        'apikey': 'Bearer app-rvWHhd2tCD4LObid7TyQGK90',
+        'apikey': `Bearer ${AppConstants.API_URL}`,
     },);
     const [display, setDisplay] = useState('true')
 
