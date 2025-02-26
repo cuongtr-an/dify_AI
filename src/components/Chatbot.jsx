@@ -28,7 +28,7 @@ const Chatbot = ({ apiKey, currentTab }) => {
     if (prevTabRef.current !== null && prevTabRef.current !== currentTab) {
       setMessages((prev) => [
         ...prev,
-        { sender: "system", text: `${currentTab}` == "Home" ? "Trở về màn hình chính" : `Bắt đầu chủ đề: ${currentTab}` },
+        { sender: "system", text: `${currentTab}` == AppConstants.API_MODEL_BASE.name ? "Trở về chủ đề mặc định" : `Bắt đầu chủ đề: ${currentTab}` },
       ]);
     }
     prevTabRef.current = currentTab; // Cập nhật tab trước đó

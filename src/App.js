@@ -11,7 +11,10 @@ function App() {
   const [currentTab, setCurrentTab] = useState("Home");
 
   const tabs = [
-    { name: "Home", apiKey: AppConstants.API_MODEL_BASE },
+    {
+      name: AppConstants.API_MODEL_BASE.name,
+      apikey: AppConstants.API_MODEL_BASE.apikey
+    },
     ...AppConstants.API_MODEL_OPTIONS.map((option) => ({
       name: option.name,
       apiKey: option.apikey,
