@@ -13,7 +13,7 @@ function App() {
   const tabs = [
     { 
       name: AppConstants.API_MODEL_BASE.name,
-      apikey: AppConstants.API_MODEL_BASE.apikey 
+      apiKey: AppConstants.API_MODEL_BASE.apikey,
     },
     ...AppConstants.API_MODEL_OPTIONS.map((option) => ({
       name: option.name,

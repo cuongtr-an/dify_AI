@@ -50,7 +50,7 @@ const Chatbot = ({ apiKey, currentTab }) => {
       const response = await fetch(`${AppConstants.BASE_URL}/chat-messages`, {
         method: "POST",
         headers: {
-          Authorization: apiKey,
+          "Authorization": apiKey,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({

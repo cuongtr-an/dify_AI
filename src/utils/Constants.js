@@ -2,7 +2,7 @@ export default class AppConstants {
     static BASE_URL = "http://localhost/v1";
     static API_MODEL_BASE = {
         'name': 'Mặc định',
-        'apikey': 'Bearer app-tMD55bdnR0zP2alcE1kr8dfY'
+        'apikey': 'Bearer app-tMD55bdnR0zP2alcE1kr8dfY',
     };
     static API_MODEL_OPTIONS = [
         {
