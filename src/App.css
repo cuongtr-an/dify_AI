@@ -151,16 +151,16 @@ h1 {
 }
 
 .sidebar.collapsed {
-  width: 50px;
+  width: 65px;
 }
 
 .menu-content {
-  padding: 10px;
+  /* padding: 10px; */
 }
 
 .menu-content ul {
   list-style: none;
-  padding-left: 10px;
+  padding: 0 10px;
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -207,6 +207,8 @@ h1 {
 
 .height-icon {
   height: 24px !important;
+  display: flex;
+  justify-content: center;
 }
 
 .markdown-container pre {
@@ -253,9 +255,16 @@ h1 {
 }
 
 .sidebar ul li {
-  padding: 10px;
-  cursor: pointer;
-  border-radius: 8px;
+	padding: 10px;
+	cursor: pointer;
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.sidebar ul li p{
+  margin: 0;
 }
 
 .sidebar ul li:hover {

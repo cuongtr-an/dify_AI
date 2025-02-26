@@ -11,13 +11,15 @@ function App() {
   const [currentTab, setCurrentTab] = useState(AppConstants.API_MODEL_BASE.name);
 
   const tabs = [
-    { 
+    {
       name: AppConstants.API_MODEL_BASE.name,
       apiKey: AppConstants.API_MODEL_BASE.apikey,
+      icon: AppConstants.API_MODEL_BASE.icon,
     },
     ...AppConstants.API_MODEL_OPTIONS.map((option) => ({
       name: option.name,
       apiKey: option.apikey,
+      icon: option.icon,
     })),
   ];
 
@@ -56,7 +58,7 @@ function App() {
     <div className="App">
       <div
         className={`sidebar ${isCollapsed ? "collapsed" : ""}`}
-        style={{ width: isCollapsed ? "50px" : `${sidebarWidth}px` }}
+        style={{ width: isCollapsed ? "65px" : `${sidebarWidth}px` }}
         ref={sidebarRef}
       >
         <button className="toggle-button" onClick={toggleSidebar}>
@@ -71,7 +73,7 @@ function App() {
             </div>
           )}
         </button>
-        {!isCollapsed && (
+        {!isCollapsed ? (
           <div className="menu-content">
             <ul>
               {tabs.map((tab) => (
@@ -80,7 +82,22 @@ function App() {
                   onClick={() => setCurrentTab(tab.name)}
                   className={currentTab === tab.name ? "active" : ""}
                 >
-                  {tab.name}
+                  <span className="material-icons">{tab.icon}</span>
+                  <p>{tab.name}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <div className="menu-content">
+            <ul>
+              {tabs.map((tab) => (
+                <li
+                  key={tab.name}
+                  onClick={() => setCurrentTab(tab.name)}
+                  className={currentTab === tab.name ? "active" : ""}
+                >
+                  <span className="material-icons">{tab.icon}</span>
                 </li>
               ))}
             </ul>
