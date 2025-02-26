@@ -8,12 +8,12 @@ function App() {
   const [sidebarWidth, setSidebarWidth] = useState(window.innerWidth * 0.2);
   const sidebarRef = useRef(null);
   const isResizing = useRef(false);
-  const [currentTab, setCurrentTab] = useState("Home");
+  const [currentTab, setCurrentTab] = useState(AppConstants.API_MODEL_BASE.name);
 
   const tabs = [
-    {
+    { 
       name: AppConstants.API_MODEL_BASE.name,
-      apikey: AppConstants.API_MODEL_BASE.apikey
+      apikey: AppConstants.API_MODEL_BASE.apikey 
     },
     ...AppConstants.API_MODEL_OPTIONS.map((option) => ({
       name: option.name,
