@@ -1,3 +1,4 @@
+// 
 import React, { useState, useRef, useEffect } from "react";
 import "./App.css";
 import Chatbot from "./components/Chatbot.jsx";
@@ -69,7 +70,7 @@ function App() {
           ) : (
             <div className="title">
               <span className="material-icons">menu</span>
-              <h2 style={{ marginTop: 0, marginBottom: 0 }}>Chatbot</h2>
+              <h2>Tina Assistant</h2>
             </div>
           )}
         </button>
@@ -111,7 +112,7 @@ function App() {
       <div className="main-content">
         <Chatbot
           apiKey={tabs.find((tab) => tab.name === currentTab).apiKey}
-          currentTab={currentTab} // Truyền currentTab xuống Chatbot
+          currentTab={currentTab}
         />
       </div>
     </div>
