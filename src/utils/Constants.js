@@ -3,18 +3,18 @@ export default class AppConstants {
     // icon lấy ở https://fonts.google.com/icons?icon.query=mess&icon.size=24&icon.color=%23e3e3e3
     static API_MODEL_BASE = {
         'name': 'Mặc định',
-        'apikey': 'Bearer app-tMD55bdnR0zP2alcE1kr8dfY',
+        'apikey': 'Bearer app-nnE4FeWy51B5ZVxxW7faj62V',
         'icon': 'home',
     };
     static API_MODEL_OPTIONS = [
         {
             'name': 'Công nghệ thông tin',
-            'apikey': `Bearer app-yjA2CFcTA6yqZNJ1kybV6PWC`,
-            'icon': 'traffic',
+            'apikey': `Bearer app-yehCA5OUn9gfVp0sgN4swYUf`,
+            'icon': 'code',
         }
         , {
             'name': 'Y tế',
-            'apikey': `Bearer app-oEGgAaAQKdQMwLIzXLKqITfQ`,
+            'apikey': `Bearer app-IOylAbGYJDdPqrlVxUjR6qMQ`,
             'icon': 'medical_services',
         }
     ];
